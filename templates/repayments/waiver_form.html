@@ -1,0 +1,40 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Penalty Waiver{% endblock %}
+{% block page_title %}Penalty Waiver{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-5">
+  <div class="card">
+    <div class="card-header"><i class="bi bi-shield-check me-2 text-warning"></i>
+      Waive Penalty — {{ loan.application_number }}
+    </div>
+    <div class="card-body">
+      <div class="alert alert-warning" style="font-size:12px;">
+        Only Branch Manager and above can waive penalties. This action is logged.
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Instalment with Penalty <span class="required-star">*</span></label>
+          {{ form.schedule_item }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Amount to Waive (UGX) <span class="required-star">*</span></label>
+          {{ form.waived_amount }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Reason <span class="required-star">*</span></label>
+          {{ form.reason }}
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-warning px-4">Confirm Waiver</button>
+          <a href="{% url 'loans:detail' loan.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

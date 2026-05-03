@@ -1,0 +1,89 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Disburse — {{ loan.application_number }}{% endblock %}
+{% block page_title %}Disburse Loan{% endblock %}
+{% block nav_loans %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-6">
+
+  <div class="alert alert-success d-flex align-items-center gap-2">
+    <i class="bi bi-check-circle fs-4"></i>
+    <div>
+      <strong>Loan Approved.</strong> This loan has been approved for
+      <strong>UGX {{ loan.approved_amount|floatformat:0|intcomma }}</strong>.
+      Complete disbursement details below.
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header"><i class="bi bi-person me-2"></i>Disbursement To</div>
+    <div class="card-body" style="font-size:13px;">
+      <div class="row g-2">
+        <div class="col-6">
+          <span class="text-muted">Borrower</span><br>
+          <strong>{{ loan.customer.full_name }}</strong>
+        </div>
+        <div class="col-6">
+          <span class="text-muted">MTN MoMo</span><br>
+          {{ loan.customer.mtn_momo_number|default:"Not registered" }}
+        </div>
+        <div class="col-6">
+          <span class="text-muted">Airtel Money</span><br>
+          {{ loan.customer.airtel_money_number|default:"Not registered" }}
+        </div>
+        <div class="col-6">
+          <span class="text-muted">Bank Account</span><br>
+          {% if loan.customer.bank_name %}
+            {{ loan.customer.bank_name }} — {{ loan.customer.bank_account }}
+          {% else %}Not provided{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header"><i class="bi bi-cash me-2"></i>Disbursement Details</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Amount to Disburse (UGX) <span class="required-star">*</span></label>
+            {{ form.disbursed_amount }}
+            <div class="form-text">Approved: UGX {{ loan.approved_amount|floatformat:0|intcomma }}
+              {% if loan.processing_fee %} — Processing fee: UGX {{ loan.processing_fee|floatformat:0|intcomma }} deducted{% endif %}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Disbursement Channel <span class="required-star">*</span></label>
+            {{ form.disbursement_channel }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Transaction Reference <span class="required-star">*</span></label>
+            {{ form.disbursement_reference }}
+          </div>
+        </div>
+
+        <div class="alert alert-warning mt-3" style="font-size:12px;">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Once disbursed, a repayment schedule will be automatically generated and the loan status will become <strong>Active</strong>. This action cannot be undone.
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-success px-4">
+            <i class="bi bi-send me-1"></i>Confirm Disbursement
+          </button>
+          <a href="{% url 'loans:detail' loan.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}

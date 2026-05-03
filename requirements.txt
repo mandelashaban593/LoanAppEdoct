@@ -1,0 +1,10 @@
+Django>=4.2,<5.0
+Pillow>=10.0.0
+python-dateutil>=2.8.2
+djangorestframework==3.17.1
+djangorestframework_simplejwt==5.5.1
+PyJWT==2.12.1
+python-dateutil==2.9.0.post0
+six==1.17.0
+
+

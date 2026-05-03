@@ -1,0 +1,88 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Customers{% endblock %}
+{% block page_title %}Customers{% endblock %}
+{% block nav_customers %}active{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+    <form class="d-flex gap-2" method="get">
+      <input class="form-control form-control-sm" name="q"
+             placeholder="Search name, NIN, phone…" value="{{ search }}" style="width:260px;">
+      <button class="btn btn-sm btn-primary">Search</button>
+      {% if search %}<a href="{% url 'customers:list' %}" class="btn btn-sm btn-outline-secondary">Clear</a>{% endif %}
+    </form>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-muted small">{{ total|intcomma }} record{{ total|pluralize }}</span>
+      {% if not request.user.is_auditor %}
+      <a href="{% url 'customers:create' %}" class="btn btn-sm btn-success">
+        <i class="bi bi-person-plus me-1"></i>Add Customer
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Full Name</th><th>NIN</th><th>Phone</th>
+          <th>District</th><th>Type</th><th>Branch</th>
+          <th>Active Loans</th><th>Status</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr onclick="window.location='{% url 'customers:detail' c.pk %}'">
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:32px;height:32px;border-radius:50%;background:#1F3864;
+                          color:#fff;display:flex;align-items:center;justify-content:center;
+                          font-size:11px;font-weight:700;flex-shrink:0;">
+                {{ c.full_name|slice:":1"|upper }}{{ c.full_name|wordcount|pluralize:"" }}
+              </div>
+              <div>
+                <div class="fw-500">{{ c.full_name }}</div>
+                <small class="text-muted">{{ c.mtn_momo_number|default:"" }}</small>
+              </div>
+            </div>
+          </td>
+          <td><code style="font-size:11px;">{{ c.nin }}</code></td>
+          <td>{{ c.primary_phone }}</td>
+          <td>{{ c.district }}</td>
+          <td style="font-size:12px;">{{ c.get_customer_type_display }}</td>
+          <td style="font-size:12px;">{{ c.branch.code }}</td>
+          <td class="text-center">
+            {% with count=c.total_active_loans_count %}
+            {% if count %}<span class="badge bg-info text-dark">{{ count }}</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td>
+            {% if c.is_blacklisted %}
+            <span class="badge bg-danger">Blacklisted</span>
+            {% else %}
+            <span class="badge bg-success">Active</span>
+            {% endif %}
+          </td>
+          <td onclick="event.stopPropagation()">
+            <a href="{% url 'customers:detail' c.pk %}"
+               class="btn btn-sm btn-outline-primary" style="font-size:11px;">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center py-5 text-muted">
+            <i class="bi bi-people fs-1 d-block mb-2"></i>
+            No customers found.
+            {% if not request.user.is_auditor %}
+            <br><a href="{% url 'customers:create' %}">Add the first customer</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

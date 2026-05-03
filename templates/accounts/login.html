@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Loan Management System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+  body { background: linear-gradient(135deg, #1F3864 0%, #2E5FA3 100%);
+         min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .login-card { background: #fff; border-radius: 14px; padding: 40px 36px;
+                 width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
+  .login-logo { font-size: 36px; color: #1F3864; }
+  .login-title { font-size: 22px; font-weight: 700; color: #1F3864; }
+  .login-sub { font-size: 13px; color: #888; }
+  .btn-login { background: #1F3864; border: none; color: #fff; font-weight: 600;
+                padding: 11px; font-size: 15px; border-radius: 8px; }
+  .btn-login:hover { background: #2E5FA3; color: #fff; }
+  .form-control { border-radius: 8px; padding: 10px 14px; }
+  .form-label { font-weight: 500; font-size: 13px; }
+  .input-group-text { background: #f8f9fa; border-right: none; }
+  .form-control.with-icon { border-left: none; }
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="text-center mb-4">
+    <div class="login-logo"><i class="bi bi-bank2"></i></div>
+    <div class="login-title">Loan Management System</div>
+    <div class="login-sub">Uganda — Kampala</div>
+  </div>
+
+  {% if messages %}
+  {% for msg in messages %}
+  <div class="alert alert-danger py-2 small">{{ msg }}</div>
+  {% endfor %}
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-person"></i></span>
+        <input type="text" name="username" class="form-control with-icon"
+               placeholder="Enter your username" required autofocus
+               value="{{ request.POST.username }}">
+      </div>
+    </div>
+    <div class="mb-4">
+      <label class="form-label">Password</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+        <input type="password" name="password" id="pwField" class="form-control with-icon"
+               placeholder="Enter your password" required>
+        <button type="button" class="btn btn-outline-secondary"
+                onclick="togglePw()" tabindex="-1">
+          <i class="bi bi-eye" id="pwIcon"></i>
+        </button>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-login w-100">
+      <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+    </button>
+  </form>
+  <div class="text-center mt-4" style="font-size:11px; color:#aaa;">
+    Session expires after 10 minutes of inactivity<br>
+    Account locks after 5 failed attempts
+  </div>
+</div>
+<script>
+function togglePw() {
+  const f = document.getElementById('pwField');
+  const i = document.getElementById('pwIcon');
+  if (f.type === 'password') { f.type = 'text'; i.className = 'bi bi-eye-slash'; }
+  else { f.type = 'password'; i.className = 'bi bi-eye'; }
+}
+</script>
+</body>
+</html>

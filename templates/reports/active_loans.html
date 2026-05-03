@@ -1,0 +1,74 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Active Loans{% endblock %}
+{% block page_title %}Active Loans Report{% endblock %}
+{% block nav_reports %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <span class="text-muted small">{{ report_date|date:"d F Y" }}</span>
+    <span class="badge bg-success ms-2">{{ loans|length }} loan{{ loans|length|pluralize }}</span>
+    <span class="ms-2 text-muted small">Total: UGX {{ total_portfolio|floatformat:0|intcomma }}</span>
+  </div>
+  <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-printer me-1"></i>Print
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="bi bi-activity me-2 text-success"></i>Active Loan Portfolio</div>
+  <div class="table-responsive">
+    <table class="table table-hover table-sm mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Application #</th>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Product</th>
+          <th>Disbursed (UGX)</th>
+          <th>Total Repayable</th>
+          <th>Outstanding</th>
+          <th>Disbursed Date</th>
+          <th>Branch</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans %}
+        <tr onclick="window.location='{% url 'loans:detail' loan.pk %}'" style="cursor:pointer;">
+          <td><code style="font-size:11px;">{{ loan.application_number }}</code></td>
+          <td>
+            <div class="fw-500">{{ loan.customer.full_name }}</div>
+            <small class="text-muted">{{ loan.customer.nin }}</small>
+          </td>
+          <td style="font-size:12px;">{{ loan.customer.primary_phone }}</td>
+          <td style="font-size:12px;">{{ loan.product.name }}</td>
+          <td>{{ loan.disbursed_amount|floatformat:0|intcomma }}</td>
+          <td>{{ loan.total_repayable|floatformat:0|intcomma }}</td>
+          <td class="fw-500 text-danger">{{ loan.outstanding_balance|floatformat:0|intcomma }}</td>
+          <td style="font-size:11px; color:#888;">{{ loan.disbursed_at|date:"d M Y" }}</td>
+          <td style="font-size:11px;">{{ loan.branch.code }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>No active loans found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% if loans %}
+      <tfoot class="table-light fw-bold">
+        <tr>
+          <td colspan="4">Total</td>
+          <td>UGX {{ total_portfolio|floatformat:0|intcomma }}</td>
+          <td></td>
+          <td></td>
+          <td colspan="2"></td>
+        </tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </div>
+</div>
+{% endblock %}

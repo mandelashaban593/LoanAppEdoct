@@ -1,0 +1,93 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Loan Applications{% endblock %}
+{% block page_title %}Loan Applications{% endblock %}
+{% block nav_loans %}active{% endblock %}
+
+{% block content %}
+<!-- Stats bar -->
+<div class="row g-3 mb-4">
+  {% for label, key, color in stats_display %}
+  <div class="col-6 col-md-2">
+    <div class="card text-center py-2">
+      <div class="fw-700" style="font-size:20px;color:{{ color }};">{{ stats|default_if_none:0 }}</div>
+      <div class="text-muted" style="font-size:11px;">{{ label }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+    <!-- Search -->
+    <form class="d-flex gap-2" method="get">
+      <input class="form-control form-control-sm" name="q" placeholder="Search name, NIN, application #"
+             value="{{ search }}" style="width:240px;">
+      <select class="form-select form-select-sm" name="status" style="width:170px;">
+        <option value="">All Statuses</option>
+        {% for val, label in statuses %}
+        <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-sm btn-primary">Filter</button>
+      {% if search or current_status %}
+      <a href="{% url 'loans:list' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
+      {% endif %}
+    </form>
+    {% if not request.user.is_auditor %}
+    <a href="{% url 'loans:create' %}" class="btn btn-sm btn-success">
+      <i class="bi bi-plus-lg me-1"></i>New Application
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Application #</th>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Requested (UGX)</th>
+          <th>Approved (UGX)</th>
+          <th>Status</th>
+          <th>Branch</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans %}
+        <tr onclick="window.location='{% url 'loans:detail' loan.pk %}'">
+          <td><code style="font-size:12px;">{{ loan.application_number }}</code></td>
+          <td>
+            <div class="fw-500">{{ loan.customer.full_name }}</div>
+            <small class="text-muted">{{ loan.customer.nin }}</small>
+          </td>
+          <td style="font-size:12px;">{{ loan.product.name }}</td>
+          <td>{{ loan.requested_amount|floatformat:0|intcomma }}</td>
+          <td>{% if loan.approved_amount %}{{ loan.approved_amount|floatformat:0|intcomma }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+          <td>
+            <span class="badge badge-{{ loan.status }} px-2" style="font-size:11px;">
+              {{ loan.get_status_display }}
+            </span>
+          </td>
+          <td style="font-size:12px;">{{ loan.branch.code }}</td>
+          <td style="font-size:11px; color:#888;">{{ loan.created_at|date:"d M Y" }}</td>
+          <td onclick="event.stopPropagation()">
+            <a href="{% url 'loans:detail' loan.pk %}" class="btn btn-sm btn-outline-primary" style="font-size:11px;">View</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            No applications found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

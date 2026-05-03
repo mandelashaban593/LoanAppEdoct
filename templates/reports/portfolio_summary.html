@@ -1,0 +1,118 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Portfolio Summary{% endblock %}
+{% block page_title %}Portfolio Summary Report{% endblock %}
+{% block nav_reports %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <span class="text-muted small">As at {{ report_date|date:"d F Y" }}</span>
+  <div class="d-flex gap-2">
+    <a href="{% url 'reports:active_loans' %}" class="btn btn-sm btn-outline-primary">Active Loans</a>
+    <a href="{% url 'reports:arrears' %}" class="btn btn-sm btn-outline-warning">Arrears</a>
+    <a href="{% url 'reports:defaulters' %}" class="btn btn-sm btn-outline-danger">Defaulters</a>
+    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-printer me-1"></i>Print
+    </button>
+  </div>
+</div>
+
+<!-- KPI summary cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card text-center p-3">
+      <div style="font-size:26px;font-weight:700;color:#198754;">
+        {{ summary.active.count|default:0|intcomma }}
+      </div>
+      <div class="text-muted small">Active Loans</div>
+      <div class="fw-500" style="font-size:13px;">
+        UGX {{ summary.active.total|default:0|floatformat:0|intcomma }}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card text-center p-3">
+      <div style="font-size:26px;font-weight:700;color:#0d6efd;">
+        {{ summary.disbursed_month.count|default:0|intcomma }}
+      </div>
+      <div class="text-muted small">Disbursed This Month</div>
+      <div class="fw-500" style="font-size:13px;">
+        UGX {{ summary.disbursed_month.total|default:0|floatformat:0|intcomma }}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card text-center p-3">
+      <div style="font-size:26px;font-weight:700;color:#6f42c1;">
+        {{ summary.closed.count|default:0|intcomma }}
+      </div>
+      <div class="text-muted small">Closed / Settled</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card text-center p-3">
+      <div style="font-size:26px;font-weight:700;color:#dc3545;">
+        {{ summary.written_off.count|default:0|intcomma }}
+      </div>
+      <div class="text-muted small">Written Off</div>
+    </div>
+  </div>
+</div>
+
+<!-- Income summary -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="text-muted small mb-1">Total Collections</div>
+      <div class="fw-700" style="font-size:18px;">
+        UGX {{ summary.total_collected|default:0|floatformat:0|intcomma }}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="text-muted small mb-1">Interest Income</div>
+      <div class="fw-700" style="font-size:18px; color:#198754;">
+        UGX {{ summary.interest_income|default:0|floatformat:0|intcomma }}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <div class="text-muted small mb-1">Penalty Income</div>
+      <div class="fw-700" style="font-size:18px; color:#fd7e14;">
+        UGX {{ summary.penalty_income|default:0|floatformat:0|intcomma }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><i class="bi bi-bar-chart me-2"></i>Report Navigation</div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a href="{% url 'reports:active_loans' %}" class="d-flex align-items-center gap-3 p-3 border rounded text-decoration-none text-dark">
+          <i class="bi bi-activity fs-3 text-success"></i>
+          <div><div class="fw-500">Active Loans Report</div>
+            <div class="text-muted small">All currently disbursed loans</div></div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{% url 'reports:arrears' %}" class="d-flex align-items-center gap-3 p-3 border rounded text-decoration-none text-dark">
+          <i class="bi bi-exclamation-triangle fs-3 text-warning"></i>
+          <div><div class="fw-500">Arrears Report</div>
+            <div class="text-muted small">Overdue instalments</div></div>
+        </a>
+      </div>
+      <div class="col-md-4">
+        <a href="{% url 'reports:defaulters' %}" class="d-flex align-items-center gap-3 p-3 border rounded text-decoration-none text-dark">
+          <i class="bi bi-x-circle fs-3 text-danger"></i>
+          <div><div class="fw-500">Defaulters Report</div>
+            <div class="text-muted small">90+ days in arrears</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

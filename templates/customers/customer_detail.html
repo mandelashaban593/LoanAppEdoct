@@ -1,0 +1,310 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}{{ customer.full_name }}{% endblock %}
+{% block page_title %}Customer Profile{% endblock %}
+{% block nav_customers %}active{% endblock %}
+
+{% block content %}
+<!-- Header bar -->
+<div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+  <a href="{% url 'customers:list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+  {% if customer.is_blacklisted %}
+  <span class="badge bg-danger px-3 py-2" style="font-size:13px;">
+    <i class="bi bi-slash-circle me-1"></i>Blacklisted
+  </span>
+  {% endif %}
+  {% if not request.user.is_auditor %}
+  <a href="{% url 'customers:edit' customer.pk %}" class="btn btn-sm btn-outline-warning">
+    <i class="bi bi-pencil me-1"></i>Edit
+  </a>
+  <a href="{% url 'loans:create' %}?customer={{ customer.pk }}" class="btn btn-sm btn-success">
+    <i class="bi bi-plus-circle me-1"></i>New Loan Application
+  </a>
+  {% endif %}
+  {% if not customer.is_blacklisted and request.user.is_md %}
+  <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#blacklistModal">
+    <i class="bi bi-slash-circle me-1"></i>Blacklist
+  </button>
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <!-- Left column -->
+  <div class="col-lg-4">
+
+    <!-- Profile card -->
+    <div class="card mb-3">
+      <div class="card-body text-center py-4">
+        {% if customer.photo %}
+        <img src="{{ customer.photo.url }}" alt="Photo"
+             style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #1F3864;">
+        {% else %}
+        <div style="width:80px;height:80px;border-radius:50%;background:#1F3864;
+                    color:#fff;font-size:28px;font-weight:700;
+                    display:flex;align-items:center;justify-content:center;margin:0 auto;">
+          {{ customer.full_name|slice:":1"|upper }}
+        </div>
+        {% endif %}
+        <h5 class="mt-3 mb-1">{{ customer.full_name }}</h5>
+        <div class="text-muted small mb-2">{{ customer.get_customer_type_display }}</div>
+        <code class="d-block mb-2">{{ customer.nin }}</code>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <span class="badge bg-secondary">{{ customer.branch.name }}</span>
+          {% if customer.gender %}<span class="badge bg-light text-dark">{{ customer.get_gender_display }}</span>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-telephone me-2"></i>Contact</div>
+      <div class="card-body" style="font-size:13px;">
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Primary Phone</span><span>{{ customer.primary_phone }}</span>
+        </div>
+        {% if customer.alternative_phone %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Alt Phone</span><span>{{ customer.alternative_phone }}</span>
+        </div>
+        {% endif %}
+        {% if customer.mtn_momo_number %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">MTN MoMo</span><span>{{ customer.mtn_momo_number }}</span>
+        </div>
+        {% endif %}
+        {% if customer.airtel_money_number %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Airtel Money</span><span>{{ customer.airtel_money_number }}</span>
+        </div>
+        {% endif %}
+        {% if customer.email %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Email</span><span>{{ customer.email }}</span>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">District</span><span>{{ customer.district }}</span>
+        </div>
+        <div class="py-1">
+          <span class="text-muted d-block">Address</span>
+          <span>{{ customer.village_lc1 }}, {{ customer.physical_address }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial profile -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-wallet me-2"></i>Financial Profile</div>
+      <div class="card-body" style="font-size:13px;">
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Employer / Business</span>
+          <span class="text-end" style="max-width:55%;">{{ customer.employer_business }}</span>
+        </div>
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Occupation</span><span>{{ customer.occupation }}</span>
+        </div>
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Monthly Income</span>
+          <span class="fw-500 text-success">UGX {{ customer.monthly_income|floatformat:0|intcomma }}</span>
+        </div>
+        {% if customer.other_income %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Other Income</span>
+          <span>UGX {{ customer.other_income|floatformat:0|intcomma }}</span>
+        </div>
+        {% endif %}
+        {% if customer.monthly_expenses %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Monthly Expenses</span>
+          <span>UGX {{ customer.monthly_expenses|floatformat:0|intcomma }}</span>
+        </div>
+        {% endif %}
+        {% if customer.existing_loans %}
+        <div class="d-flex justify-content-between py-1 border-bottom">
+          <span class="text-muted">Other Loan Payments</span>
+          <span class="text-danger">UGX {{ customer.existing_loans|floatformat:0|intcomma }}</span>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between py-1">
+          <span class="text-muted">Net Monthly Income</span>
+          <span class="fw-500">UGX {{ customer.net_monthly_income|floatformat:0|intcomma }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next of kin -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-person-check me-2"></i>Next of Kin</div>
+      <div class="card-body" style="font-size:13px;">
+        <div class="fw-500">{{ customer.next_of_kin_name }}</div>
+        <div>{{ customer.next_of_kin_phone }}</div>
+        {% if customer.next_of_kin_relation %}
+        <div class="text-muted">{{ customer.next_of_kin_relation }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right column -->
+  <div class="col-lg-8">
+
+    <!-- Loan history -->
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-credit-card me-2"></i>Loan History</span>
+        {% if not request.user.is_auditor %}
+        <a href="{% url 'loans:create' %}?customer={{ customer.pk }}" class="btn btn-sm btn-success">
+          <i class="bi bi-plus-lg me-1"></i>New Application
+        </a>
+        {% endif %}
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm mb-0">
+          <thead class="table-light">
+            <tr><th>Application #</th><th>Product</th><th>Amount (UGX)</th>
+                <th>Status</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for loan in loans %}
+            <tr>
+              <td><code style="font-size:11px;">{{ loan.application_number }}</code></td>
+              <td style="font-size:12px;">{{ loan.product.name }}</td>
+              <td>{{ loan.requested_amount|floatformat:0|intcomma }}</td>
+              <td><span class="badge badge-{{ loan.status }}" style="font-size:10px;">{{ loan.get_status_display }}</span></td>
+              <td style="font-size:11px; color:#888;">{{ loan.created_at|date:"d M Y" }}</td>
+              <td><a href="{% url 'loans:detail' loan.pk %}" class="btn btn-sm btn-outline-primary" style="font-size:11px;">View</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-3">No loan applications yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Guarantors -->
+    {% if guarantors %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-shield me-2"></i>Guarantors</div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead class="table-light">
+            <tr><th>Name</th><th>NIN</th><th>Phone</th><th>Relationship</th></tr>
+          </thead>
+          <tbody>
+            {% for g in guarantors %}
+            <tr>
+              <td>{{ g.full_name }}</td>
+              <td><code style="font-size:11px;">{{ g.nin }}</code></td>
+              <td>{{ g.phone }}</td>
+              <td>{{ g.relationship }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Collateral -->
+    {% if collaterals %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-box-seam me-2"></i>Collateral</div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead class="table-light">
+            <tr><th>Type</th><th>Description</th><th>Market Value (UGX)</th><th>FSV (UGX)</th></tr>
+          </thead>
+          <tbody>
+            {% for col in collaterals %}
+            <tr>
+              <td>{{ col.get_collateral_type_display }}</td>
+              <td style="font-size:12px;">{{ col.description|truncatechars:50 }}</td>
+              <td>{{ col.market_value|floatformat:0|intcomma }}</td>
+              <td>{{ col.forced_sale_value|floatformat:0|intcomma }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Documents -->
+    {% if documents %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-paperclip me-2"></i>Uploaded Documents</div>
+      <div class="card-body">
+        <div class="row g-2">
+          {% for doc in documents %}
+          <div class="col-sm-6">
+            <a href="{{ doc.file.url }}" target="_blank" class="d-flex align-items-center gap-2 p-2 border rounded text-decoration-none text-dark">
+              <i class="bi bi-file-earmark-pdf fs-4 text-danger"></i>
+              <div>
+                <div style="font-size:12px;font-weight:500;">{{ doc.get_doc_type_display }}</div>
+                <div style="font-size:10px;color:#888;">{{ doc.uploaded_at|date:"d M Y" }}</div>
+              </div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- KYC Images -->
+    {% if customer.id_front or customer.id_back %}
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-card-image me-2"></i>ID Documents</div>
+      <div class="card-body d-flex gap-3 flex-wrap">
+        {% if customer.id_front %}
+        <div>
+          <div class="text-muted small mb-1">National ID — Front</div>
+          <a href="{{ customer.id_front.url }}" target="_blank">
+            <img src="{{ customer.id_front.url }}" alt="ID Front"
+                 style="height:90px;border-radius:6px;border:1px solid #dee2e6;cursor:pointer;">
+          </a>
+        </div>
+        {% endif %}
+        {% if customer.id_back %}
+        <div>
+          <div class="text-muted small mb-1">National ID — Back</div>
+          <a href="{{ customer.id_back.url }}" target="_blank">
+            <img src="{{ customer.id_back.url }}" alt="ID Back"
+                 style="height:90px;border-radius:6px;border:1px solid #dee2e6;cursor:pointer;">
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Blacklist Modal -->
+<div class="modal fade" id="blacklistModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title text-danger">Blacklist Customer</h5>
+      <button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form method="post" action="{% url 'customers:blacklist' customer.pk %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="alert alert-danger">This will prevent <strong>{{ customer.full_name }}</strong> from applying for new loans.</div>
+        <div class="mb-3">
+          <label class="form-label">Reason <span class="required-star">*</span></label>
+          <textarea class="form-control" name="reason" rows="3" required
+                    placeholder="e.g. Defaulted on previous loan, fraud confirmed…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-danger">Confirm Blacklist</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+{% endblock %}
