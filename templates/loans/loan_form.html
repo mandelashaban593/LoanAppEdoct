@@ -1,0 +1,73 @@
+{% extends "base/base.html" %}
+{% block title %}{{ action }} Loan Application{% endblock %}
+{% block page_title %}{{ action }} Loan Application{% endblock %}
+{% block nav_loans %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-8">
+<div class="card">
+  <div class="card-header d-flex align-items-center gap-2">
+    <a href="{% url 'loans:list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <span>{{ action }} Loan Application</span>
+  </div>
+  <div class="card-body">
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="form-section-title">Borrower</div>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Customer <span class="required-star">*</span></label>
+          {{ form.customer }}
+          {% if form.customer.errors %}<div class="text-danger small">{{ form.customer.errors }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="form-section-title">Loan Details</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Loan Product <span class="required-star">*</span></label>
+          {{ form.product }}
+          {% if form.product.errors %}<div class="text-danger small">{{ form.product.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Loan Purpose <span class="required-star">*</span></label>
+          {{ form.purpose }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Requested Amount (UGX) <span class="required-star">*</span></label>
+          {{ form.requested_amount }}
+          {% if form.requested_amount.errors %}<div class="text-danger small">{{ form.requested_amount.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Repayment Period (months) <span class="required-star">*</span></label>
+          {{ form.requested_period_months }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Preferred Repayment Channel</label>
+          {{ form.repayment_channel }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Purpose Details</label>
+          {{ form.purpose_details }}
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary px-4">
+          <i class="bi bi-save me-1"></i>Save as Draft
+        </button>
+        <a href="{% url 'loans:list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Restructure Loan{% endblock %}
+{% block page_title %}Loan Restructure{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-5">
+  <div class="card">
+    <div class="card-header"><i class="bi bi-arrows-angle-expand me-2 text-info"></i>
+      Restructure — {{ loan.application_number }}
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info" style="font-size:12px;">
+        Restructuring will generate a new repayment schedule based on the outstanding balance
+        and the new term. MD approval required.
+      </div>
+      <div class="mb-3" style="font-size:13px;">
+        <span class="text-muted">Current Term:</span>
+        <strong>{{ loan.approved_period_months }} months</strong> &nbsp;|&nbsp;
+        <span class="text-muted">Outstanding:</span>
+        <strong>UGX {{ loan.outstanding_balance|floatformat:0|intcomma }}</strong>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">New Repayment Term (months) <span class="required-star">*</span></label>
+          {{ form.new_period_months }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Reason for Restructure <span class="required-star">*</span></label>
+          {{ form.reason }}
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-info text-white px-4">Confirm Restructure</button>
+          <a href="{% url 'loans:detail' loan.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}

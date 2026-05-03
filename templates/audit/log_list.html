@@ -1,0 +1,60 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Audit Logs{% endblock %}
+{% block page_title %}System Audit Logs{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-journal-text me-2"></i>Audit Trail — Last 500 Actions</span>
+    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-printer me-1"></i>Print
+    </button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Timestamp</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Record Type</th>
+          <th>Record</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td style="font-size:11px; white-space:nowrap; color:#888;">
+            {{ log.timestamp|date:"d M Y H:i:s" }}
+          </td>
+          <td style="font-size:12px;">
+            {% if log.user %}{{ log.user.get_full_name|default:log.user.username }}
+            {% else %}<span class="text-muted">System</span>{% endif %}
+          </td>
+          <td>
+            <span class="badge
+              {% if log.action == 'approve' or log.action == 'disburse' %}bg-success
+              {% elif log.action == 'reject' %}bg-danger
+              {% elif log.action == 'login' or log.action == 'logout' %}bg-secondary
+              {% elif log.action == 'repayment' %}bg-info text-dark
+              {% elif log.action == 'waiver' %}bg-warning text-dark
+              {% else %}bg-primary{% endif %}" style="font-size:10px;">
+              {{ log.get_action_display }}
+            </span>
+          </td>
+          <td style="font-size:12px;">{{ log.model_name|default:"—" }}</td>
+          <td style="font-size:11px;">{{ log.object_repr|truncatechars:45|default:"—" }}</td>
+          <td style="font-size:11px; color:#888;">{{ log.ip_address|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-4 text-muted">No audit records found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

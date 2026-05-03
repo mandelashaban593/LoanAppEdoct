@@ -1,0 +1,94 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Review — {{ loan.application_number }}{% endblock %}
+{% block page_title %}Credit Review{% endblock %}
+{% block nav_loans %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-8">
+
+  <div class="card mb-3">
+    <div class="card-header"><i class="bi bi-person me-2"></i>Borrower & Income Summary</div>
+    <div class="card-body">
+      <div class="row g-3" style="font-size:13px;">
+        <div class="col-md-3">
+          <div class="text-muted">Customer</div>
+          <div class="fw-500">{{ loan.customer.full_name }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Monthly Income</div>
+          <div class="fw-500 text-success">UGX {{ loan.customer.monthly_income|floatformat:0|intcomma }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Monthly Expenses</div>
+          <div>UGX {{ loan.customer.monthly_expenses|floatformat:0|intcomma }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Existing Loan Payments</div>
+          <div class="text-danger">UGX {{ loan.customer.existing_loans|floatformat:0|intcomma }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Net Disposable Income</div>
+          <div class="fw-500">UGX {{ loan.customer.net_monthly_income|floatformat:0|intcomma }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Requested Amount</div>
+          <div class="fw-500">UGX {{ loan.requested_amount|floatformat:0|intcomma }}</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Term</div>
+          <div>{{ loan.requested_period_months }} months</div>
+        </div>
+        <div class="col-md-3">
+          <div class="text-muted">Product Interest</div>
+          <div>{{ loan.product.interest_rate }}% / month</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><i class="bi bi-graph-up me-2"></i>Credit Assessment</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Recommended Amount (UGX)</label>
+            {{ form.recommended_amount }}
+            <div class="form-text">Officer's recommended amount based on income analysis</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Debt-to-Income Ratio (%)</label>
+            {{ form.debt_to_income_ratio }}
+            <div class="form-text">Max allowed: 40%</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Credit Score (%)</label>
+            {{ form.credit_score }}
+            <div class="form-text">Pass mark: 70%</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Credit Assessment Result</label>
+            {{ form.credit_passed }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Review Notes</label>
+            {{ form.comment }}
+            <div class="form-text">These notes will appear in the approval timeline.</div>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-info text-white px-4">
+            <i class="bi bi-search me-1"></i>Start Review
+          </button>
+          <a href="{% url 'loans:detail' loan.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}

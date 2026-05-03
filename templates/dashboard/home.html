@@ -1,0 +1,144 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<!-- KPI Row -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="kpi-card" style="background: linear-gradient(135deg,#1F3864,#2E5FA3);">
+      <div class="kpi-icon"><i class="bi bi-activity"></i></div>
+      <div class="kpi-label">Active Loans</div>
+      <div class="kpi-val">{{ active_count|intcomma }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="kpi-card" style="background: linear-gradient(135deg,#065f46,#059669);">
+      <div class="kpi-icon"><i class="bi bi-cash-stack"></i></div>
+      <div class="kpi-label">Outstanding Portfolio</div>
+      <div class="kpi-val" style="font-size:16px;">UGX {{ outstanding|floatformat:0|intcomma }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="kpi-card" style="background: linear-gradient(135deg,#7c3aed,#6d28d9);">
+      <div class="kpi-icon"><i class="bi bi-arrow-up-circle"></i></div>
+      <div class="kpi-label">Disbursed Today</div>
+      <div class="kpi-val" style="font-size:16px;">UGX {{ disbursed_today|floatformat:0|intcomma }}</div>
+      <div style="font-size:11px;opacity:.8;">{{ disbursed_today_ct }} loan{{ disbursed_today_ct|pluralize }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="kpi-card" style="background: linear-gradient(135deg,#b45309,#d97706);">
+      <div class="kpi-icon"><i class="bi bi-arrow-down-circle"></i></div>
+      <div class="kpi-label">Collected Today</div>
+      <div class="kpi-val" style="font-size:16px;">UGX {{ collected_today|floatformat:0|intcomma }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Second KPI row -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:28px;font-weight:700;color:#dc3545;">{{ overdue_count }}</div>
+      <div class="text-muted" style="font-size:12px;">Overdue Loans</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:28px;font-weight:700;color:#0d6efd;">{{ pending_approval }}</div>
+      <div class="text-muted" style="font-size:12px;">Pending Approval</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:28px;font-weight:700;color:#198754;">{{ total_customers|intcomma }}</div>
+      <div class="text-muted" style="font-size:12px;">Total Customers</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-center p-3">
+      <div style="font-size:28px;font-weight:700;color:#6f42c1;">UGX {{ portfolio_value|floatformat:0|intcomma }}</div>
+      <div class="text-muted" style="font-size:12px;">Total Portfolio Value</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Applications -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-clock-history me-2"></i>Recent Loan Applications</span>
+    <a href="{% url 'loans:list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Application #</th>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Amount (UGX)</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in recent_loans %}
+        <tr onclick="window.location='{% url 'loans:detail' loan.pk %}'">
+          <td><code>{{ loan.application_number }}</code></td>
+          <td>
+            <div class="fw-500">{{ loan.customer.full_name }}</div>
+            <small class="text-muted">{{ loan.customer.primary_phone }}</small>
+          </td>
+          <td>{{ loan.product.name }}</td>
+          <td>{{ loan.requested_amount|floatformat:0|intcomma }}</td>
+          <td>
+            <span class="badge badge-{{ loan.status }} px-2 py-1" style="font-size:11px;">
+              {{ loan.get_status_display }}
+            </span>
+          </td>
+          <td style="font-size:12px;">{{ loan.created_at|date:"d M Y" }}</td>
+          <td><a href="{% url 'loans:detail' loan.pk %}" class="btn btn-xs btn-outline-secondary btn-sm">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No loan applications yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+{% if not request.user.is_auditor %}
+<div class="row g-3 mt-2">
+  <div class="col-12"><h6 class="text-muted" style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;">Quick Actions</h6></div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'customers:create' %}" class="card text-decoration-none p-3 d-flex flex-row align-items-center gap-3">
+      <i class="bi bi-person-plus fs-4 text-primary"></i>
+      <span style="font-size:13px;font-weight:500;">New Customer</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'loans:create' %}" class="card text-decoration-none p-3 d-flex flex-row align-items-center gap-3">
+      <i class="bi bi-plus-circle fs-4 text-success"></i>
+      <span style="font-size:13px;font-weight:500;">New Application</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'loans:list' %}?status=submitted" class="card text-decoration-none p-3 d-flex flex-row align-items-center gap-3">
+      <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+      <span style="font-size:13px;font-weight:500;">Review Queue</span>
+    </a>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{% url 'reports:portfolio' %}" class="card text-decoration-none p-3 d-flex flex-row align-items-center gap-3">
+      <i class="bi bi-bar-chart fs-4 text-info"></i>
+      <span style="font-size:13px;font-weight:500;">Portfolio Report</span>
+    </a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

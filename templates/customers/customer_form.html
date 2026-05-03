@@ -1,0 +1,195 @@
+{% extends "base/base.html" %}
+{% block title %}{{ action }} Customer{% endblock %}
+{% block page_title %}{{ action }} Customer{% endblock %}
+{% block nav_customers %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-xl-9">
+<div class="card">
+  <div class="card-header d-flex align-items-center gap-2">
+    <a href="{% url 'customers:list' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    {{ action }} Customer Record
+  </div>
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <!-- IDENTITY -->
+      <div class="form-section-title">Identity & KYC</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Full Name (as on National ID) <span class="required-star">*</span></label>
+          {{ form.full_name }}
+          {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">National ID Number (NIN) <span class="required-star">*</span></label>
+          {{ form.nin }}
+          {% if form.nin.errors %}<div class="text-danger small mt-1">{{ form.nin.errors }}</div>{% endif %}
+          <div class="form-text">Format: CM1234567890ABCDE</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Date of Birth</label>
+          {{ form.date_of_birth }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Gender</label>
+          {{ form.gender }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Marital Status</label>
+          {{ form.marital_status }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Number of Dependants</label>
+          {{ form.dependants }}
+        </div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="form-section-title">Contact Details</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Primary Phone <span class="required-star">*</span></label>
+          {{ form.primary_phone }}
+          {% if form.primary_phone.errors %}<div class="text-danger small mt-1">{{ form.primary_phone.errors }}</div>{% endif %}
+          <div class="form-text">e.g. 0772123456 or +256772123456</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Alternative Phone</label>
+          {{ form.alternative_phone }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Email Address</label>
+          {{ form.email }}
+        </div>
+      </div>
+
+      <!-- ADDRESS -->
+      <div class="form-section-title">Address</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">District <span class="required-star">*</span></label>
+          {{ form.district }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Village / LC1 Area <span class="required-star">*</span></label>
+          {{ form.village_lc1 }}
+          <div class="form-text">e.g. Kitemu Cell, Entebbe Road</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Next of Kin Name <span class="required-star">*</span></label>
+          {{ form.next_of_kin_name }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Next of Kin Phone <span class="required-star">*</span></label>
+          {{ form.next_of_kin_phone }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Relationship to Next of Kin</label>
+          {{ form.next_of_kin_relation }}
+          <div class="form-text">e.g. Spouse, Sibling, Parent</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Full Physical Address <span class="required-star">*</span></label>
+          {{ form.physical_address }}
+          <div class="form-text">e.g. Near Kitemu trading centre, blue gate house</div>
+        </div>
+      </div>
+
+      <!-- EMPLOYMENT -->
+      <div class="form-section-title">Employment & Business Profile</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Customer Type <span class="required-star">*</span></label>
+          {{ form.customer_type }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Employer / Business Name <span class="required-star">*</span></label>
+          {{ form.employer_business }}
+          <div class="form-text">e.g. Mukwano Industries / Bosco Retail Shop</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Occupation / Business Type <span class="required-star">*</span></label>
+          {{ form.occupation }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Monthly Income (UGX) <span class="required-star">*</span></label>
+          {{ form.monthly_income }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Other Income (UGX)</label>
+          {{ form.other_income }}
+          <div class="form-text">e.g. farming, rental</div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Monthly Expenses (UGX)</label>
+          {{ form.monthly_expenses }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Other Loan Repayments (UGX/month)</label>
+          {{ form.existing_loans }}
+          <div class="form-text">Total monthly instalments elsewhere</div>
+        </div>
+      </div>
+
+      <!-- BANKING / MOMO -->
+      <div class="form-section-title">Banking & Mobile Money</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">MTN MoMo Number <span class="required-star">*</span></label>
+          {{ form.mtn_momo_number }}
+          <div class="form-text">Primary disbursement channel</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Airtel Money Number</label>
+          {{ form.airtel_money_number }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Bank Name</label>
+          {{ form.bank_name }}
+          <div class="form-text">e.g. Stanbic, Centenary, Equity</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Bank Account Number</label>
+          {{ form.bank_account }}
+        </div>
+      </div>
+
+      <!-- KYC DOCUMENTS -->
+      <div class="form-section-title">KYC Photos & Documents</div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Passport Photo</label>
+          {{ form.photo }}
+          <div class="form-text">Max 5 MB — JPG or PNG</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">National ID — Front <span class="required-star">*</span></label>
+          {{ form.id_front }}
+          <div class="form-text">PDF, JPG or PNG, max 5 MB</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">National ID — Back <span class="required-star">*</span></label>
+          {{ form.id_back }}
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-primary px-5">
+          <i class="bi bi-save me-1"></i>Save Customer
+        </button>
+        <a href="{% url 'customers:list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base/base.html" %}
+{% load humanize %}
+{% block title %}Defaulters{% endblock %}
+{% block page_title %}Defaulters Report (90+ Days){% endblock %}
+{% block nav_reports %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <span class="text-muted small">{{ report_date|date:"d F Y" }}</span>
+    <span class="badge bg-danger ms-2">{{ loans|length }} defaulter{{ loans|length|pluralize }}</span>
+  </div>
+  <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-printer me-1"></i>Print
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <i class="bi bi-x-circle me-2 text-danger"></i>Loan Defaulters — 90+ Days Overdue
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover table-sm mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Application #</th>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Approved Amount</th>
+          <th>Outstanding (UGX)</th>
+          <th>Branch</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans %}
+        <tr class="table-danger">
+          <td><code style="font-size:11px;">{{ loan.application_number }}</code></td>
+          <td>
+            <div class="fw-500">{{ loan.customer.full_name }}</div>
+            <small class="text-muted">{{ loan.customer.nin }} | {{ loan.customer.district }}</small>
+          </td>
+          <td>{{ loan.customer.primary_phone }}</td>
+          <td>UGX {{ loan.approved_amount|floatformat:0|intcomma }}</td>
+          <td class="fw-500">UGX {{ loan.outstanding_balance|floatformat:0|intcomma }}</td>
+          <td style="font-size:11px;">{{ loan.branch.name }}</td>
+          <td>
+            <a href="{% url 'loans:detail' loan.pk %}" class="btn btn-sm btn-outline-danger" style="font-size:11px;">
+              View
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+            No defaulters found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
